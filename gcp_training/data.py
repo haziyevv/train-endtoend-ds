@@ -1,6 +1,7 @@
 import torch
 from torch.utils.data import Dataset, DataLoader
 
+
 class NewsDataset(Dataset):
     def __init__(self, texts, categories, max_length, tokenizer):
         self.texts = texts
@@ -23,18 +24,21 @@ class NewsDataset(Dataset):
             padding="max_length",
         )
         input_ids = inputs["input_ids"].squeeze()
+
         attention_mask = inputs["attention_mask"].squeeze()
 
         return input_ids, attention_mask, category
+
 
 def collate_fn(batch):
     input_ids, attention_mask, categories = zip(*batch)
     return torch.stack(input_ids), torch.stack(attention_mask), list(categories)
 
 
-
-def create_data_loader(texts, categories, max_len, batch_size, tokenizer):
+def create_data_loader(texts, categories, max_len, batch_size, tokenizer, shuffle=True):
     dataset = NewsDataset(texts, categories, max_len, tokenizer)
 
     # create a dataloader that pads the sequences to the maximum length
-    return DataLoader(dataset, batch_size=batch_size, collate_fn=collate_fn)
+    return DataLoader(
+        dataset, batch_size=batch_size, collate_fn=collate_fn, shuffle=shuffle
+    )

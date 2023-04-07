@@ -7,9 +7,9 @@ class AzeNewsModel(nn.Module):
     def __init__(self, vocab_size, emb_size):
         super(AzeNewsModel, self).__init__()
         self.filter_sizes = [2, 3, 4]
-        self.num_filters = 100
+        self.num_filters = 50
         self.num_classes = 5
-        self.dropout_prob = 0.2
+        self.dropout_prob = 0.3
         self.embedding = nn.Embedding(num_embeddings=vocab_size, embedding_dim=emb_size)
         self.convs = nn.ModuleList(
             [
