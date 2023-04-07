@@ -10,4 +10,4 @@ COPY config.yaml ${WORKDIR}/config.yaml
 COPY gcp_training ${WORKDIR}/gcp_training
 
 RUN pip install -r requirements.txt
-ENTRYPOINT ["python3", "-m", "gcp_training.train"]
+ENTRYPOINT ["python3", "-m", "gcp_training"]
