@@ -150,7 +150,6 @@ class NewsClassifer:
                 eval_loss = self.eval_epoch(eval_dataloader)
 
                 if previous_loss - eval_loss < tol:
-                    pdb.set_trace()
                     early_stopping_counter += 1
                 else:
                     early_stopping_counter = 0
