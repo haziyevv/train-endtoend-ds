@@ -1,9 +1,9 @@
 steps:
 # Build the container image
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'gcr.io/azedstesting/aze-ds-vertex', '.']
+  args: ['build', '-t', 'gcr.io/test-azer-ds/aze-ds-vertex', '.']
 # Push the container image to Container Registry
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'gcr.io/azedstesting/aze-ds-vertex']
+  args: ['push', 'gcr.io/test-azer-ds/aze-ds-vertex']
 images:
-- gcr.io/azedstesting/aze-ds-vertex
+- gcr.io/test-azer-ds/aze-ds-vertex
