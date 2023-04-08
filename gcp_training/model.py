@@ -4,12 +4,14 @@ import torch.nn.functional as F
 
 
 class AzeNewsModel(nn.Module):
-    def __init__(self, vocab_size, emb_size):
+    def __init__(
+        self, vocab_size, emb_size, filter_sizes, num_filters, num_classes, dropout_prob
+    ):
         super(AzeNewsModel, self).__init__()
-        self.filter_sizes = [2, 3, 4]
-        self.num_filters = 50
-        self.num_classes = 5
-        self.dropout_prob = 0.3
+        self.filter_sizes = filter_sizes
+        self.num_filters = num_filters
+        self.num_classes = num_classes
+        self.dropout_prob = dropout_prob
         self.embedding = nn.Embedding(num_embeddings=vocab_size, embedding_dim=emb_size)
         self.convs = nn.ModuleList(
             [

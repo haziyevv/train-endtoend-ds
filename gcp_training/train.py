@@ -20,6 +20,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
 class NewsClassifer:
     def __init__(
         self,
@@ -32,6 +33,12 @@ class NewsClassifer:
         eval_batch_size=64,
         max_num_tokens=256,
         bucket_name="azenews",
+        model_emb_size=128,
+        model_filter_sizes=[2, 3, 4],
+        model_num_filters=50,
+        model_dropout_prob=0.3,
+        model_tol=1e-4,
+        early_stopping_patience=3,
     ):
         self.bq_client = bigquery.Client(project=os.getenv(bq_project_id))
         self.categ2index = {
@@ -42,7 +49,14 @@ class NewsClassifer:
             "ikt": 4,
         }
         self.tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
-        self.model = AzeNewsModel(vocab_size=self.tokenizer.vocab_size, emb_size=128)
+        self.model = AzeNewsModel(
+            vocab_size=self.tokenizer.vocab_size,
+            emb_size=model_emb_size,
+            filter_sizes=model_filter_sizes,
+            num_filters=model_num_filters,
+            num_classes=len(self.categ2index),
+            dropout_prob=model_dropout_prob,
+        )
         self.loss_fn = nn.CrossEntropyLoss()
         self.optimizer = torch.optim.AdamW(self.model.parameters(), lr=lr)
         self.max_epochs = max_epochs
@@ -52,6 +66,8 @@ class NewsClassifer:
 
         self.model_name = model_name
         self.bucket_name = bucket_name
+        self.tol = model_tol
+        self.early_stopping_patience = early_stopping_patience
 
     def preprocess(self, texts):
         """Preprocess the texts by removing the brackets and extra spaces and useless informations"""
@@ -139,17 +155,17 @@ class NewsClassifer:
         writer = SummaryWriter("logs")
 
         # apply early stopping to stop the training process if the eval loss is not decreasing
-        tol = 1e-4 # tolerance that we allow the eval loss to improve at least in each pass
         early_stopping_counter = 0
-        previous_loss = float("inf")
+
+        best_eval_loss = float("inf")
 
         for epoch in range(self.max_epochs):
             train_loss = self.train_epoch(train_dataloader)
 
-            if epoch % 10 == 0: # evaluate the model every 10 epochs
+            if epoch % 10 == 0:  # evaluate the model every 10 epochs
                 eval_loss = self.eval_epoch(eval_dataloader)
 
-                if previous_loss - eval_loss < tol:
+                if best_eval_loss - eval_loss < self.tol:
                     early_stopping_counter += 1
                 else:
                     early_stopping_counter = 0
@@ -157,7 +173,9 @@ class NewsClassifer:
                 if early_stopping_counter > 3:
                     break
 
-                previous_loss = eval_loss
+                if eval_loss < best_eval_loss:
+                    best_eval_loss = eval_loss
+
                 logger.info(f"Epoch {epoch}: eval loss: {eval_loss}")
                 writer.add_scalar("validation_loss", eval_loss, epoch)
             writer.add_scalar("training_loss", train_loss, epoch)

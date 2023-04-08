@@ -18,6 +18,12 @@ if __name__ == "__main__":
         eval_batch_size=int(config["eval_batch_size"]),
         max_num_tokens=int(config["max_num_tokens"]),
         bucket_name=config["bucket_name"],
+        model_emb_size=int(config["model_emb_size"]),
+        model_filter_sizes=config["model_filter_sizes"],
+        model_num_filters=int(config["model_num_filters"]),
+        model_dropout_prob=float(config["model_dropout_prob"]),
+        model_tol=float(config["model_tol"]),
+        early_stopping_patience=int(config["early_stopping_patience"]),
     )
 
     trainer.train()

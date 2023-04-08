@@ -6,3 +6,12 @@ batch_size: 64
 eval_batch_size: 64
 max_num_tokens: 256
 bucket_name: azenews-bucket
+model_filter_sizes: 
+  - 2
+  - 3
+  - 4
+model_num_filters: 50
+model_emb_size: 128
+model_dropout_prob: 0.3
+model_tol: 1e-4
+early_stopping_patience: 3
